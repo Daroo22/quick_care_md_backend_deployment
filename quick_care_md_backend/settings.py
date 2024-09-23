@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import environ  
+import dj_database_url
+import django_heroku
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +30,25 @@ SECRET_KEY = 'django-insecure-((dzm7tsi%&@=(rxts0v9(&6a*8tpd8i)ndw-d#szmgz+4d-mh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com']
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
+
+# These are required
+DATABASE_URL=env('DATABASE_URL')
+SECRET_KEY=env('SECRET_KEY')
+
+# These are not required.
+# If you want to connect locally to the database you may need them
+# Something to be aware of, nothing more.
+
+# PGDATABASE=env('PGDATABASE')
+# PGHOST=env('PGHOST')
+# PGPASSWORD=env('PGPASSWORD')
+# PGPORT=env('PGPORT')
+# PGUSER=env('PGUSER')
 
 # Application definition
 INSTALLED_APPS = [
@@ -63,6 +86,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,15 +119,20 @@ WSGI_APPLICATION = 'quick_care_md_backend.wsgi.application'
 
 # PostgreSQL Database configuration
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'quick_care_db',  
-        'USER': 'hospital_admin',  # Your PostgreSQL user
-        'PASSWORD': 'password',  # Your PostgreSQL password is 'password'
-        'HOST': 'localhost',  # The host (usually localhost)
-        'PORT': '5432',  # The port (usually 5432)
-    }
+    'default': 
+        dj_database_url.config('DATABASE_URL')
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'quick_care_db',  
+#         'USER': 'hospital_admin',  # Your PostgreSQL user
+#         'PASSWORD': 'password',  # Your PostgreSQL password is 'password'
+#         'HOST': 'localhost',  # The host (usually localhost)
+#         'PORT': '5432',  # The port (usually 5432)
+#     }
+# }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -162,3 +191,5 @@ LOGGING = {
         },
     },
 }
+
+django_heroku.settings(locals())
